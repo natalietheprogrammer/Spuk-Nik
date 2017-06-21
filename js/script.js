@@ -4,7 +4,7 @@ $(function() {
 	var currentDifficulty = "medium";
 	var difficultyChanged = false;
 	// Default value if function fails to call num containers based on difficulty level
-	var numberOfContainers = "7";
+	
 
 	// game time + 1 (accounts for the 1 second that is removed prior to logging to DOM)
 	var maxTime = 31000;
@@ -30,15 +30,16 @@ $(function() {
 
 	var levels = {
 		easy: {
-			numberOfContainers: 5,
+			numberOfContainers: 3,
 		},
 		medium: {
-			numberOfContainers: 7,
+			numberOfContainers: 5,
 		},
 		hard: {
-			numberOfContainers: 9,
+			numberOfContainers: 7,
 		},
 	}
+	var numberOfContainers = levels.medium.numberOfContainers;
 	const characterArray = [
 		'img/spud.png',
 		'img/spud.png',
@@ -47,10 +48,9 @@ $(function() {
 		'img/spud.png',
 		'img/martian.png',
 		'img/martian.png',
-		'img/martian.png',
 		'img/yukon.png',
 		'img/yukon.png',
-		'img/sweet_spud.png',
+		'img/sweet_spud.png'
 	];
 	const characterInfo = {
 		'img/spud.png': {
@@ -61,17 +61,22 @@ $(function() {
 		'img/yukon.png': {
 			points: 30,
 			deadImg: 'img/yukon--smoosh.png',
-			description: "Corporal Yukie"
+			description: "Corporal Yukie",
+			animateUp: 'animate--up-yukie',
+			animateDown: 'animate--down-yukie'
 		},
 		'img/sweet_spud.png': {
 			points: 50,
 			deadImg: 'img/sweet_spud--smoosh.png',
-			description: "Sergeant Sweet P"
+			description: "Sergeant Sweet P",
+			animateUp: 'animate--up-sweet-p'
 		},
 		'img/martian.png': {
 			points: -20,
 			deadImg: 'img/martian--smoosh.png',
-			description: "Local Yokal"
+			description: "Local Yokal",
+			animateUp: 'animate--up-yokal',
+			animateDown: 'animate--down-yokal'
 		}
 	}
 
@@ -80,6 +85,7 @@ $(function() {
 		//B) clears previous game set-up and begins a new game if user changes difficulty level within menu overlay, and
 		//C) returns to game if user presses "start" button in overlay menu but has not changed difficulty level (ie. they paused to game to read about it, but did not change any settings)
 	function restart (firstGame) {
+		console.log('called');
   		var overlay = $('.overlay');
   		//if game is playing, user is not in menu overlay, timer is running 
 	  	inMenu = false;
@@ -109,6 +115,7 @@ $(function() {
 			setSpudHeight();
 			drawContainers(numberOfContainers);
 			containerContentZIndex(containerCoords);
+			startAudio();
 
 			//set-up & start game timer, every 1s each if statement etc is checked
 			//also activates spuds based on set time interval
@@ -132,6 +139,9 @@ $(function() {
 				if (gameTimer === 0) {
 					console.log('cleared');
 					clearInterval(gameTimerId);
+					$('.overlay').html('<h1>Game Over</h1>');
+					$('.overlay').show();
+					pauseAudio();
 				}
 			},1000);
 	} //end of restart function
@@ -142,7 +152,7 @@ $(function() {
 	  var container = $('.characterInfoGallery');
 
 		for (var key in characterInfo) {
-		  console.log(key, characterInfo[key].points);
+		  // console.log(key, characterInfo[key].points);
 		  // Add to list
 		  var characterInfoCell = $('<div>').addClass('characterInfoCell');
 		  var characterPic = $('<div>').addClass('characterPic');
@@ -167,7 +177,7 @@ $(function() {
 	  var buttonMedium = $('.button-medium');
 	  var buttonHard = $('.button-hard');
 
-	  buttonEasy.on('click', function () {
+	  buttonEasy.on('click touchstart', function () {
 	  	if (currentDifficulty !== "easy") {
 	  		$('.current-difficulty').removeClass('current-difficulty');
 	  		$('.button-easy').addClass('current-difficulty');
@@ -175,7 +185,7 @@ $(function() {
 	  		currentDifficulty = "easy";
 	  	}
 	  })
-	  buttonMedium.on('click', function () {
+	  buttonMedium.on('click touchstart', function () {
 	  	if (currentDifficulty !== "medium") {
 	  		$('.current-difficulty').removeClass('current-difficulty');
 	  		$('.button-medium').addClass('current-difficulty');
@@ -183,7 +193,7 @@ $(function() {
 	  		currentDifficulty = "medium";
 	  	}
 	  })
-	  buttonHard.on('click', function () {
+	  buttonHard.on('click touchstart', function () {
 	  	if (currentDifficulty !== "hard") {
 	  		$('.current-difficulty').removeClass('current-difficulty');
 	  		$('.button-hard').addClass('current-difficulty');
@@ -195,14 +205,14 @@ $(function() {
 	  //set's up listener on start button (overlay)
 	  // if clicked, call restart function, argument of "false" indicates user is returning to game from overlay
 	  var startButton = $('.start');	  
-	  startButton.on('click', function () {
+	  startButton.on('click touchstart', function () {
 	  	restart(false);
 	  })
 
 	  //set's up listener on menu button (game screen)
 	  //if clicked, user is now in menu, overlay is displayed, timer is paused [component of restart()gameTimerId]
 	  var menuButton = $('.menu-button');	  
-	  menuButton.on('click', function () {
+	  menuButton.on('click touchstart', function () {
 	  	inMenu = true;
 	  	$('.overlay').show();
 	  })
@@ -217,7 +227,6 @@ $(function() {
 			spudHeight = screenSize.small[2];
 			holeWidth = screenSize.small[3];
 			changeText();
-
 		} else if (screenSize.medium[0] < windowWidth && windowWidth <= screenSize.medium[1]) {
 			spudHeight = screenSize.medium[2];
 			holeWidth = screenSize.medium[3];
@@ -270,8 +279,9 @@ $(function() {
 
 	// clear containers
 	function clearContainers() {
-			$('.spud-list__spud-container').remove();
+			// $('.spud-list__spud-container').remove();
 			containerCoords = [];
+			$('.spud-list').empty();
 	}
 
 
@@ -339,6 +349,11 @@ $(function() {
 		var spud = $(`#spud-${id} img.hole-content__spud`);
 		var imgSrc = characterArray[randomNum(characterArray.length, 0)];
 		spud.attr('src', `${imgSrc}`);
+		// if (imgSrc === 'img/sweet_spud.png') {
+		// 	spud.addClass('animate--up-sweet-p');
+		// }
+		// else {
+		// }
 		spud.addClass('animate--up');
         spud.removeClass('animate--down');
         $('.spud-list').on('transitionend webkitTransitionEnd oTransitionEnd','.hole-content__spud', function () {
@@ -347,8 +362,20 @@ $(function() {
         });
     }
 
+    function startAudio() {
+    	$('.game-music').attr({
+    	    'src': './music/background_music.mp3',
+    	    'volume': 0.8,
+    	    'autoplay':'autoplay'
+    	});
+    }
+    function pauseAudio() {
+    	// console.log($('.game-music'));
+    	$('.game-music')[0].pause();
+    	// console.log('paused');
+    }
 
-	$('.spud-list').on('click', '.hole-content__spud',function () {
+	$('.spud-list').on('click touchstart', '.hole-content__spud',function () {
 		var spudId = $(this).parents('li').attr('id');
 		var spudImg = $(this).attr('src');
 		var spudPoints = characterInfo[spudImg].points;
@@ -406,10 +433,8 @@ $(function() {
 
 	// window.addEventListener("orientationchange", function() {
 	//     // if (parseInt(screen.orientation.angle) === 90 );
-	//     	isHorizontal = true;
-	//     console.log('game is paused');
 	// });
+
 	// after html is loaded call js start-up functions ("restart" the game)
 	restart(true);
-
 });
