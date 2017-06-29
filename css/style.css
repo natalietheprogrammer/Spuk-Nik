@@ -481,11 +481,14 @@ button.start:hover {
 
 /* Overlay media query */
 @media (max-width: 880px) { 
-	.overlay-middle-row { flex-wrap: wrap; }
+	.overlay-middle-row {
+		flex-wrap: wrap;
+		margin-top: 1.5%
+	}
 	.overlay-middle-row main {
 		text-align: center;
 		width: 100%;
-		margin-bottom: 8%;
+		margin-bottom: 4%;
 		padding-left: 5.5%;
 		padding-right: 5.5%;
 	}
@@ -494,7 +497,16 @@ button.start:hover {
 	}
 	.characterInfoCell {
 		margin: 0 auto;
-		margin-bottom: 3%;
+		margin-bottom: 1.5%;
+	}
+	.overlay { font-size: 18px; }
+	button.start { 
+		width: 167px;
+		height: 40px;
+	}
+	.difficulty-buttons {
+		padding-top: 25px;
+		padding-bottom: 30px;
 	}
 }
 @media (max-width: 550px) { 
